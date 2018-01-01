@@ -1,17 +1,18 @@
 import React from "react";
 import "./App.css";
 import { update } from "./BooksAPI";
+import "../node_modules/font-awesome/css/font-awesome.min.css";
 
 let bookTitle = "";
 let author = "";
 let thumbnail = "";
 let shelf = "";
+let BookOptions = "";
 
 class Book extends React.Component {
   constructor(props) {
     super(props);
     this.onChange = this.onChange.bind(this);
-    // console.log(this.props.book);
   }
 
   state = {
@@ -21,6 +22,10 @@ class Book extends React.Component {
   componentDidMount() {
     if (this.props.book.shelf) {
       this.setState({ shelf: this.props.book.shelf });
+    }
+
+    if (this.props.shelf) {
+      this.setState({ shelf: this.props.shelf });
     } else {
       this.setState({ shelf: "none" });
     }
@@ -28,9 +33,6 @@ class Book extends React.Component {
 
   onChange = e => {
     e.preventDefault();
-    // console.log("found dropdown react.");
-    // console.log(e.target.value);
-    // console.log("shelf: " + shelf);
     const promiseUpdate = update(this.props.book, e.target.value);
     promiseUpdate.then(result => {
       if (this.props.isSearch) {
@@ -42,6 +44,8 @@ class Book extends React.Component {
   };
 
   render() {
+    //console.log("first - " + shelf);
+    //console.log(this.props.book)
     for (let property in this.props.book) {
       if (property === "title") {
         bookTitle = this.props.book[property];
@@ -53,6 +57,79 @@ class Book extends React.Component {
         shelf = this.props.book[property];
       }
     }
+
+    //console.log(shelf);
+
+    if (this.state.shelf === "currentlyReading") {
+      BookOptions = (
+        <select
+          id="shelfState"
+          onChange={this.onChange}
+          value={this.state.shelf}
+          style={{ fontFamily: "FontAwesome" }}
+        >
+          <option value="none" disabled>
+            Move to...
+          </option>
+          <option value="currentlyReading">&#xf14a; Currently Reading</option>
+          <option value="wantToRead">Want to Read</option>
+          <option value="read">Read</option>
+          <option value="none">None</option>
+        </select>
+      );
+    } else if (this.state.shelf === "wantToRead") {
+      BookOptions = (
+        <select
+          id="shelfState"
+          onChange={this.onChange}
+          value={this.state.shelf}
+          style={{ fontFamily: "FontAwesome" }}
+        >
+          <option value="none" disabled>
+            Move to...
+          </option>
+          <option value="currentlyReading">Currently Reading</option>
+          <option value="wantToRead">&#xf14a; Want to Read</option>
+          <option value="read">Read</option>
+          <option value="none">None</option>
+        </select>
+      );
+    } else if (this.state.shelf === "read") {
+      BookOptions = (
+        <select
+          id="shelfState"
+          onChange={this.onChange}
+          value={this.state.shelf}
+          style={{ fontFamily: "FontAwesome" }}
+        >
+          <option value="none" disabled>
+            Move to...
+          </option>
+          <option value="currentlyReading">Currently Reading</option>
+          <option value="wantToRead">Want to Read</option>
+          <option value="read">&#xf14a; Read</option>
+          <option value="none">None</option>
+        </select>
+      );
+    } else {
+      BookOptions = (
+        <select
+          id="shelfState"
+          onChange={this.onChange}
+          value={this.state.shelf}
+          style={{ fontFamily: "FontAwesome" }}
+        >
+          <option value="none" disabled>
+            Move to...
+          </option>
+          <option value="currentlyReading">Currently Reading</option>
+          <option value="wantToRead">Want to Read</option>
+          <option value="read">Read</option>
+          <option value="none">&#xf14a; None</option>
+        </select>
+      );
+    }
+
     return (
       <div className="book">
         <div className="book-top">
@@ -64,21 +141,7 @@ class Book extends React.Component {
               backgroundImage: "url(" + thumbnail + ")"
             }}
           />
-          <div className="book-shelf-changer">
-            <select
-              id="shelfState"
-              onChange={this.onChange}
-              value={this.state.shelf}
-            >
-              <option value="none" disabled>
-                Move to...
-              </option>
-              <option value="currentlyReading">Currently Reading</option>
-              <option value="wantToRead">Want to Read</option>
-              <option value="read">Read</option>
-              <option value="none">None</option>
-            </select>
-          </div>
+          <div className="book-shelf-changer">{BookOptions}</div>
         </div>
         <div className="book-title">{bookTitle}</div>
         <div className="book-authors">{author}</div>

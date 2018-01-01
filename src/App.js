@@ -37,7 +37,6 @@ class BooksApp extends React.Component {
       result => {
         this.setState({ searchResults: result });
         searchResultsBooks = this.state.searchResults.map((result, index) => {
-          //console.log(result);
           return <Book key={index} book={result} />;
         });
       },
@@ -109,6 +108,27 @@ class BooksApp extends React.Component {
       return <p>Loading...</p>;
     } else {
       searchResultsBooks = this.state.searchResults.map((result, index) => {
+        
+        // See if there are any books that are CRBs in the search books
+        let filteredCRBs = currentlyReading_books.filter(crb => {
+          return crb.id === result.id;
+        });
+
+        if (filteredCRBs.length > 0) {
+          // console.log(filteredCRBs);
+          return (
+            <li key={"search" + index}>
+              <Book
+                key={index}
+                book={result}
+                refresh={this.refreshBooks}
+                isSearch={true}
+                shelf={filteredCRBs[0].shelf}
+              />
+            </li>
+          );
+        }
+
         return (
           <li key={"search" + index}>
             <Book
