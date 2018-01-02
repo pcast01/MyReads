@@ -22,6 +22,7 @@ class Book extends React.Component {
   componentDidMount() {
     if (this.props.book.shelf) {
       this.setState({ shelf: this.props.book.shelf });
+      return;
     }
 
     if (this.props.shelf) {
@@ -44,21 +45,18 @@ class Book extends React.Component {
   };
 
   render() {
-    //console.log("first - " + shelf);
-    //console.log(this.props.book)
+    console.log(this.props.book);
     for (let property in this.props.book) {
       if (property === "title") {
         bookTitle = this.props.book[property];
       } else if (property === "authors") {
         author = this.props.book[property][0];
       } else if (property === "imageLinks") {
-        thumbnail = this.props.book[property].smallThumbnail;
+        thumbnail = this.props.book[property].thumbnail;
       } else if (property === "shelf") {
         shelf = this.props.book[property];
       }
     }
-
-    //console.log(shelf);
 
     if (this.state.shelf === "currentlyReading") {
       BookOptions = (
