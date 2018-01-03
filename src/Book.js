@@ -1,4 +1,5 @@
 import React from "react";
+import PropTypes from "prop-types";
 import "./App.css";
 import { update } from "./BooksAPI";
 import "../node_modules/font-awesome/css/font-awesome.min.css";
@@ -6,7 +7,6 @@ import "../node_modules/font-awesome/css/font-awesome.min.css";
 let bookTitle = "";
 let author = "";
 let thumbnail = "";
-let shelf = "";
 let BookOptions = "";
 
 class Book extends React.Component {
@@ -25,6 +25,7 @@ class Book extends React.Component {
       return;
     }
 
+    // Save book's shelf, if none then save 'none'.
     if (this.props.shelf) {
       this.setState({ shelf: this.props.shelf });
     } else {
@@ -34,6 +35,8 @@ class Book extends React.Component {
 
   onChange = e => {
     e.preventDefault();
+
+    // Update Book's Shelf on value change.
     const promiseUpdate = update(this.props.book, e.target.value);
     promiseUpdate.then(result => {
       if (this.props.isSearch) {
@@ -45,7 +48,7 @@ class Book extends React.Component {
   };
 
   render() {
-    console.log(this.props.book);
+    // Retrieve values for book render
     for (let property in this.props.book) {
       if (property === "title") {
         bookTitle = this.props.book[property];
@@ -53,11 +56,10 @@ class Book extends React.Component {
         author = this.props.book[property][0];
       } else if (property === "imageLinks") {
         thumbnail = this.props.book[property].thumbnail;
-      } else if (property === "shelf") {
-        shelf = this.props.book[property];
       }
     }
 
+    // Create Select dropdown with selected Shelf
     if (this.state.shelf === "currentlyReading") {
       BookOptions = (
         <select
@@ -147,5 +149,12 @@ class Book extends React.Component {
     );
   }
 }
+
+Book.propTypes = {
+  book: PropTypes.object.isRequired,
+  refresh: PropTypes.func.isRequired,
+  isSearch: PropTypes.bool,
+  shelf: PropTypes.string
+};
 
 export default Book;

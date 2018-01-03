@@ -1,5 +1,4 @@
 import React from "react";
-import * as BooksAPI from "./BooksAPI";
 import "./App.css";
 import { getAll, search } from "./BooksAPI";
 import Book from "./Book";
@@ -110,7 +109,6 @@ class BooksApp extends React.Component {
       return result.toLowerCase();
     });
     this.getBooks();
-
     this.searchForBooks("android");
   }
 
@@ -156,7 +154,7 @@ class BooksApp extends React.Component {
       result => {
         this.setState({ searchResults: result });
         searchResultsBooks = this.state.searchResults.map((result, index) => {
-          return <Book key={index} book={result} />;
+          return <Book book={result} refresh={this.refreshBooks} />;
         });
       },
       error => {
@@ -180,7 +178,6 @@ class BooksApp extends React.Component {
           return (
             <li key={"search" + index}>
               <Book
-                key={index}
                 book={result}
                 refresh={this.refreshBooks}
                 isSearch={true}
@@ -199,7 +196,6 @@ class BooksApp extends React.Component {
           return (
             <li key={"search" + index}>
               <Book
-                key={index}
                 book={result}
                 refresh={this.refreshBooks}
                 isSearch={true}
@@ -218,7 +214,6 @@ class BooksApp extends React.Component {
           return (
             <li key={"search" + index}>
               <Book
-                key={index}
                 book={result}
                 refresh={this.refreshBooks}
                 isSearch={true}
@@ -231,12 +226,7 @@ class BooksApp extends React.Component {
         // Default Search books found
         return (
           <li key={"search" + index}>
-            <Book
-              key={index}
-              book={result}
-              refresh={this.refreshBooks}
-              isSearch={true}
-            />
+            <Book book={result} refresh={this.refreshBooks} isSearch={true} />
           </li>
         );
       });
@@ -245,7 +235,7 @@ class BooksApp extends React.Component {
     let show_crb = currentlyReading_books.map((result, index) => {
       return (
         <li key={"crbli" + index}>
-          <Book key={"crb" + index} book={result} refresh={this.refreshBooks} />
+          <Book book={result} refresh={this.refreshBooks} />
         </li>
       );
     });
@@ -253,7 +243,7 @@ class BooksApp extends React.Component {
     let show_wants = wantToRead_books.map((result, index) => {
       return (
         <li key={"wtrli" + index}>
-          <Book key={"wtr" + index} book={result} refresh={this.refreshBooks} />
+          <Book book={result} refresh={this.refreshBooks} />
         </li>
       );
     });
@@ -261,11 +251,7 @@ class BooksApp extends React.Component {
     let show_read = read_books.map((result, index) => {
       return (
         <li key={"readli" + index}>
-          <Book
-            key={"read" + index}
-            book={result}
-            refresh={this.refreshBooks}
-          />
+          <Book book={result} refresh={this.refreshBooks} />
         </li>
       );
     });
