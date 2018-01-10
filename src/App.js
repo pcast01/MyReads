@@ -1,95 +1,13 @@
 import React from "react";
+import { Link } from "react-router-dom";
 import "./App.css";
 import { getAll, search } from "./BooksAPI";
 import Book from "./Book";
-import Downshift from "downshift";
 
 let currentlyReading_books = [];
-
 let wantToRead_books = [];
 let read_books = [];
 let searchResultsBooks = [];
-let searchTerms = [
-  "Android",
-  "Art",
-  "Artificial Intelligence",
-  "Astronomy",
-  "Austen",
-  "Baseball",
-  "Basketball",
-  "Bhagat",
-  "Biography",
-  "Brief",
-  "Business",
-  "Camus",
-  "Cervantes",
-  "Christie",
-  "Classics",
-  "Comics",
-  "Cook",
-  "Cricket",
-  "Cycling",
-  "Desai",
-  "Design",
-  "Development",
-  "Digital Marketing",
-  "Drama",
-  "Drawing",
-  "Dumas",
-  "Education",
-  "Everything",
-  "Fantasy",
-  "Film",
-  "Finance",
-  "First",
-  "Fitness",
-  "Football",
-  "Future",
-  "Games",
-  "Gandhi",
-  "Homer",
-  "Horror",
-  "Hugo",
-  "Ibsen",
-  "Journey",
-  "Kafka",
-  "King",
-  "Lahiri",
-  "Larsson",
-  "Learn",
-  "Literary Fiction",
-  "Make",
-  "Manage",
-  "Marquez",
-  "Money",
-  "Mystery",
-  "Negotiate",
-  "Painting",
-  "Philosophy",
-  "Photography",
-  "Poetry",
-  "Production",
-  "Programming",
-  "React",
-  "Redux",
-  "River",
-  "Robotics",
-  "Rowling",
-  "Satire",
-  "Science Fiction",
-  "Shakespeare",
-  "Singh",
-  "Swimming",
-  "Tale",
-  "Thrun",
-  "Time",
-  "Tolstoy",
-  "Travel",
-  "Ultimate",
-  "Virtual Reality",
-  "Web Development",
-  "iOS"
-];
 
 class BooksApp extends React.Component {
   constructor(props) {
@@ -97,6 +15,7 @@ class BooksApp extends React.Component {
     this.getBooks = this.getBooks.bind(this);
     this.refreshBooks = this.refreshBooks.bind(this);
     this.searchForBooks = this.searchForBooks.bind(this);
+    this.renderSearchBooks = this.renderSearchBooks.bind(this);
   }
 
   state = {
@@ -105,9 +24,6 @@ class BooksApp extends React.Component {
   };
 
   componentDidMount() {
-    searchTerms = searchTerms.map(result => {
-      return result.toLowerCase();
-    });
     this.getBooks();
     this.searchForBooks("android");
   }
@@ -149,26 +65,27 @@ class BooksApp extends React.Component {
 
   searchForBooks(input) {
     let searchResults = search(input);
-
     searchResults.then(
       result => {
-        this.setState({ searchResults: result });
-        searchResultsBooks = this.state.searchResults.map((result, index) => {
-          return <Book book={result} refresh={this.refreshBooks} />;
-        });
+        if (!result.error) {
+          this.setState({ searchResults: result });
+          searchResultsBooks = this.state.searchResults.map((result, index) => {
+            return <Book book={result} refresh={this.refreshBooks} />;
+          });
+        } else {
+          this.setState({ searchResults: [] });
+        }
       },
       error => {
         console.log(error);
       }
     );
+    searchResults = null;
   }
 
-  render() {
-    if (!this.state.searchResults) {
-      return <p>Loading...</p>;
-    } else {
-      // Render search results
-      searchResultsBooks = this.state.searchResults.map((result, index) => {
+  renderSearchBooks() {
+    if (!this.state.searchResults.error) {
+      return this.state.searchResults.map((result, index) => {
         // See if there are any books that are CRBs in the search books
         let filteredCRBs = currentlyReading_books.filter(crb => {
           return crb.id === result.id;
@@ -231,6 +148,15 @@ class BooksApp extends React.Component {
         );
       });
     }
+  }
+
+  render() {
+    if (!this.state.searchResults) {
+      return <p>Loading...</p>;
+    } else {
+      // Render search results
+      searchResultsBooks = this.renderSearchBooks();
+    }
 
     let show_crb = currentlyReading_books.map((result, index) => {
       return (
@@ -261,65 +187,18 @@ class BooksApp extends React.Component {
         {this.state.showSearchPage ? (
           <div className="search-books">
             <div className="search-books-bar">
-              <a
+              <Link
+                to="/"
                 className="close-search"
                 onClick={() => this.setState({ showSearchPage: false })}
               >
                 Close
-              </a>
-              <Downshift
-                onChange={selection => this.searchForBooks(selection)}
-                render={({
-                  getInputProps,
-                  getItemProps,
-                  isOpen,
-                  inputValue,
-                  highlightedIndex,
-                  selectedItem
-                }) => (
-                  <div className="search-books-input-wrapper">
-                    <input
-                      {...getInputProps()}
-                      style={{
-                        width: "100%",
-                        padding: "15px 10px",
-                        fontSize: "1.25em",
-                        border: "none",
-                        outline: "none"
-                      }}
-                      placeholder="Search by title or author"
-                    />
-                    {isOpen ? (
-                      <div>
-                        {searchTerms
-                          .filter(
-                            i =>
-                              !inputValue.toLowerCase() ||
-                              i.includes(inputValue.toLowerCase())
-                          )
-                          .map((item, index) => (
-                            <div
-                              {...getItemProps({
-                                key: item,
-                                index,
-                                item,
-                                style: {
-                                  backgroundColor:
-                                    highlightedIndex === index
-                                      ? "lightgray"
-                                      : "white",
-                                  fontWeight:
-                                    selectedItem === item ? "bold" : "normal"
-                                }
-                              })}
-                            >
-                              {item}
-                            </div>
-                          ))}
-                      </div>
-                    ) : null}
-                  </div>
-                )}
+              </Link>
+              <input
+                type="text"
+                placeholder="Search by title or author"
+                // value={query}
+                onChange={event => this.searchForBooks(event.target.value)}
               />
             </div>
 
@@ -355,9 +234,12 @@ class BooksApp extends React.Component {
               </div>
             </div>
             <div className="open-search">
-              <a onClick={() => this.setState({ showSearchPage: true })}>
+              <Link
+                to="/Search"
+                onClick={() => this.setState({ showSearchPage: true })}
+              >
                 Add a book
-              </a>
+              </Link>
             </div>
           </div>
         )}

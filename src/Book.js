@@ -38,13 +38,6 @@ class Book extends React.Component {
 
     // Update Book's Shelf on value change.
     const promiseUpdate = update(this.props.book, e.target.value);
-    promiseUpdate.then(result => {
-      if (this.props.isSearch) {
-        this.props.refresh(true);
-      } else {
-        this.props.refresh(false);
-      }
-    });
   };
 
   render() {
@@ -60,74 +53,79 @@ class Book extends React.Component {
     }
 
     // Create Select dropdown with selected Shelf
-    if (this.state.shelf === "currentlyReading") {
-      BookOptions = (
-        <select
-          id="shelfState"
-          onChange={this.onChange}
-          value={this.state.shelf}
-          style={{ fontFamily: "FontAwesome" }}
-        >
-          <option value="none" disabled>
-            Move to...
-          </option>
-          <option value="currentlyReading">&#xf14a; Currently Reading</option>
-          <option value="wantToRead">Want to Read</option>
-          <option value="read">Read</option>
-          <option value="none">None</option>
-        </select>
-      );
-    } else if (this.state.shelf === "wantToRead") {
-      BookOptions = (
-        <select
-          id="shelfState"
-          onChange={this.onChange}
-          value={this.state.shelf}
-          style={{ fontFamily: "FontAwesome" }}
-        >
-          <option value="none" disabled>
-            Move to...
-          </option>
-          <option value="currentlyReading">Currently Reading</option>
-          <option value="wantToRead">&#xf14a; Want to Read</option>
-          <option value="read">Read</option>
-          <option value="none">None</option>
-        </select>
-      );
-    } else if (this.state.shelf === "read") {
-      BookOptions = (
-        <select
-          id="shelfState"
-          onChange={this.onChange}
-          value={this.state.shelf}
-          style={{ fontFamily: "FontAwesome" }}
-        >
-          <option value="none" disabled>
-            Move to...
-          </option>
-          <option value="currentlyReading">Currently Reading</option>
-          <option value="wantToRead">Want to Read</option>
-          <option value="read">&#xf14a; Read</option>
-          <option value="none">None</option>
-        </select>
-      );
-    } else {
-      BookOptions = (
-        <select
-          id="shelfState"
-          onChange={this.onChange}
-          value={this.state.shelf}
-          style={{ fontFamily: "FontAwesome" }}
-        >
-          <option value="none" disabled>
-            Move to...
-          </option>
-          <option value="currentlyReading">Currently Reading</option>
-          <option value="wantToRead">Want to Read</option>
-          <option value="read">Read</option>
-          <option value="none">&#xf14a; None</option>
-        </select>
-      );
+    switch (this.state.shelf) {
+      case "currentlyReading":
+        BookOptions = (
+          <select
+            id="shelfState"
+            onChange={this.onChange}
+            value={this.state.shelf}
+            style={{ fontFamily: "FontAwesome" }}
+          >
+            <option value="none" disabled>
+              Move to...
+            </option>
+            <option value="currentlyReading">&#xf14a; Currently Reading</option>
+            <option value="wantToRead">Want to Read</option>
+            <option value="read">Read</option>
+            <option value="none">None</option>
+          </select>
+        );
+        break;
+      case "wantToRead":
+        BookOptions = (
+          <select
+            id="shelfState"
+            onChange={this.onChange}
+            value={this.state.shelf}
+            style={{ fontFamily: "FontAwesome" }}
+          >
+            <option value="none" disabled>
+              Move to...
+            </option>
+            <option value="currentlyReading">Currently Reading</option>
+            <option value="wantToRead">&#xf14a; Want to Read</option>
+            <option value="read">Read</option>
+            <option value="none">None</option>
+          </select>
+        );
+        break;
+      case "read":
+        BookOptions = (
+          <select
+            id="shelfState"
+            onChange={this.onChange}
+            value={this.state.shelf}
+            style={{ fontFamily: "FontAwesome" }}
+          >
+            <option value="none" disabled>
+              Move to...
+            </option>
+            <option value="currentlyReading">Currently Reading</option>
+            <option value="wantToRead">Want to Read</option>
+            <option value="read">&#xf14a; Read</option>
+            <option value="none">None</option>
+          </select>
+        );
+        break;
+      default:
+        BookOptions = (
+          <select
+            id="shelfState"
+            onChange={this.onChange}
+            value={this.state.shelf}
+            style={{ fontFamily: "FontAwesome" }}
+          >
+            <option value="none" disabled>
+              Move to...
+            </option>
+            <option value="currentlyReading">Currently Reading</option>
+            <option value="wantToRead">Want to Read</option>
+            <option value="read">Read</option>
+            <option value="none">&#xf14a; None</option>
+          </select>
+        );
+        break;
     }
 
     return (
