@@ -37,7 +37,7 @@ class Book extends React.Component {
     e.preventDefault();
 
     // Update Book's Shelf on value change.
-    const promiseUpdate = update(this.props.book, e.target.value);
+    update(this.props.book, e.target.value);
   };
 
   render() {

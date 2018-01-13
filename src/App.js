@@ -1,14 +1,15 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import "./App.css";
-import { getAll, search } from "./BooksAPI";
+import { getAll, search, update } from "./BooksAPI";
 import Book from "./Book";
 
 let currentlyReading_books = [];
 let wantToRead_books = [];
 let read_books = [];
+let all_Books = [];
 let searchResultsBooks = [];
-
+let mergedBooks = [];
 class BooksApp extends React.Component {
   constructor(props) {
     super(props);
@@ -39,36 +40,58 @@ class BooksApp extends React.Component {
     currentlyReading_books = [];
     wantToRead_books = [];
     read_books = [];
+    all_Books = [];
+
     const pBooks = getAll();
     pBooks.then(
       result => {
         for (let property in result) {
+          all_Books.push(result[property]);
           if (result[property].shelf === "currentlyReading") {
             currentlyReading_books.push(result[property]);
           } else if (result[property].shelf === "wantToRead") {
             wantToRead_books.push(result[property]);
-          } else {
+          } else if (result[property].shelf === "read") {
             read_books.push(result[property]);
           }
         }
         this.setState({
-          currentlyReadingBooks: currentlyReading_books,
-          wantToReadBooks: wantToRead_books,
-          readBooks: read_books
+          allBooks: all_Books
         });
       },
-      reason => {
-        console.log("Reason: " + reason);
+      reject => {
+        console.log("Reason: " + reject);
       }
     );
   }
 
   searchForBooks(input) {
     let searchResults = search(input);
+    let isUsersBooks = [];
+
     searchResults.then(
-      result => {
-        if (!result.error) {
-          this.setState({ searchResults: result });
+      searchresult => {
+        if (!searchresult.error) {
+          //merge books from search with users books
+          const pBooks = getAll();
+          pBooks.then(
+            userbooks => {
+              mergedBooks = searchresult.map(searchbook => {
+                let findResult = userbooks.find(book => {
+                  return searchbook.id === book.id;
+                });
+                if (findResult != undefined) {
+                  update(searchbook, findResult.shelf);
+                }
+                return searchbook;
+              });
+            },
+            reject => {
+              console.log(reject);
+            }
+          );
+
+          this.setState({ searchResults: mergedBooks });
           searchResultsBooks = this.state.searchResults.map((result, index) => {
             return <Book book={result} refresh={this.refreshBooks} />;
           });
@@ -76,8 +99,8 @@ class BooksApp extends React.Component {
           this.setState({ searchResults: [] });
         }
       },
-      error => {
-        console.log(error);
+      reject => {
+        console.log(reject);
       }
     );
     searchResults = null;
@@ -158,29 +181,35 @@ class BooksApp extends React.Component {
       searchResultsBooks = this.renderSearchBooks();
     }
 
-    let show_crb = currentlyReading_books.map((result, index) => {
-      return (
-        <li key={"crbli" + index}>
-          <Book book={result} refresh={this.refreshBooks} />
-        </li>
-      );
-    });
+    let show_crb = all_Books
+      .filter(book => book.shelf === "currentlyReading")
+      .map((result, index) => {
+        return (
+          <li key={"crbli" + index}>
+            <Book book={result} refresh={this.refreshBooks} />
+          </li>
+        );
+      });
 
-    let show_wants = wantToRead_books.map((result, index) => {
-      return (
-        <li key={"wtrli" + index}>
-          <Book book={result} refresh={this.refreshBooks} />
-        </li>
-      );
-    });
+    let show_wants = all_Books
+      .filter(book => book.shelf === "wantToRead")
+      .map((result, index) => {
+        return (
+          <li key={"wtrli" + index}>
+            <Book book={result} refresh={this.refreshBooks} />
+          </li>
+        );
+      });
 
-    let show_read = read_books.map((result, index) => {
-      return (
-        <li key={"readli" + index}>
-          <Book book={result} refresh={this.refreshBooks} />
-        </li>
-      );
-    });
+    let show_read = all_Books
+      .filter(book => book.shelf === "read")
+      .map((result, index) => {
+        return (
+          <li key={"readli" + index}>
+            <Book book={result} refresh={this.refreshBooks} />
+          </li>
+        );
+      });
 
     return (
       <div className="app">
@@ -197,7 +226,6 @@ class BooksApp extends React.Component {
               <input
                 type="text"
                 placeholder="Search by title or author"
-                // value={query}
                 onChange={event => this.searchForBooks(event.target.value)}
               />
             </div>
